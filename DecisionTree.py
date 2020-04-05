@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import numpy as np
 import pandas as pd
 import random
@@ -139,7 +141,7 @@ def calculate_gini(data_below, data_above):
 
 
 # Get lowest gini value
-def determine_lowest_gini(data, potential_splits):
+def determine_best_split(data, potential_splits):
     gini = 999
     for col_index in potential_splits:
         for value in potential_splits[col_index]:
@@ -166,4 +168,50 @@ print(data_above)
 potential_splits = get_potential_splits(dataframe.values)
 
 print("=======")
-print(determine_lowest_gini(dataframe.values, potential_splits))
+print(determine_best_split(dataframe.values, potential_splits))
+
+# Decision tree algorithm
+def decision_tree_algorithm(df, counter=0, min_samples=0, max_depth=5):
+
+    # data preparation
+    if counter == 0:
+        global COL_HEADERS
+        COL_HEADERS = df.columns
+        data = df.values
+    else:
+        data = df
+
+    # base case
+    if (check_purity(data)) or (len(data) < min_samples) or (counter == max_depth):
+        classification = clasify_data(data)
+        return classification
+
+    # recursive part
+    else:
+        counter += 1
+
+        #helper function
+        potential_splits = get_potential_splits(data)
+        split_col, split_value, _ = determine_best_split(data, potential_splits)
+        data_below, data_above = split_data(data, split_col, split_value)
+
+        #instantiate sub_tree
+        feature_names = COL_HEADERS[split_col]
+        question = "{} <= {}".format(feature_names, split_value)
+        sub_tree = {question: []}
+
+        #find answer(recursion)
+        yes_answer = decision_tree_algorithm(data_below, counter, min_samples, max_depth)
+        no_answer = decision_tree_algorithm(data_above, counter, min_samples, max_depth)
+
+        if yes_answer == no_answer:
+            sub_tree = yes_answer
+        else:
+            sub_tree[question].append(yes_answer)
+            sub_tree[question].append(no_answer)
+
+    return sub_tree
+
+tree = decision_tree_algorithm(dataframe, max_depth=4)
+print("=======")
+pprint(tree)
