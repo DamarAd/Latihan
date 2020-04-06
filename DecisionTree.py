@@ -156,11 +156,11 @@ def determine_best_split(data, potential_splits):
 
     return best_split_col, best_split_value, lowest_gini
 
+"""
 split_col = 0
 split_value = 18
 
 data_below, data_above = split_data(dataframe.values, split_col, split_value)
-"""
 print(data_below)
 print("=======")
 print(data_above)
@@ -214,4 +214,46 @@ def decision_tree_algorithm(df, counter=0, min_samples=0, max_depth=5):
 
 tree = decision_tree_algorithm(dataframe, max_depth=4)
 print("=======")
-pprint(tree)
+#pprint(tree)
+
+
+# Classification row data
+example = dataframe.iloc[9]
+
+def classify_example(example, tree):
+
+  question = list(tree.keys())[0]
+  feature_name, comparison_operator, value = question.split()
+
+  # ask
+  if example[feature_name] <= float(value):
+    answer = tree[question][0]
+  else:
+    answer = tree[question][1]
+
+  # base case
+  if not isinstance(answer, dict):
+    return answer
+
+  # recursive part
+  else:
+    residual_tree = answer
+    return classify_example(example, residual_tree)
+
+
+#print(classify_example(example, tree))
+
+
+# Calculate accuracy
+def accuracy(df, tree):
+    df["classification"] = df.apply(classify_example, axis=1, args=(tree,))
+    df["classification_correct"] = df.classification == df.label
+
+    accuracy = df.classification_correct.mean()
+
+    return accuracy
+
+print(accuracy(dataframe, tree))
+print("========")
+print(dataframe)
+
