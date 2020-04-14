@@ -1,16 +1,17 @@
-from time import asctime
+from time import *
 
 import pandas as pd
 import numpy as np
 import random
 
+from sklearn.model_selection import train_test_split
 
 from DecisionTree import decision_tree_algorithm, decision_tree_predictions
-from helper_functions import calculate_accuracy
+from helper_functions import calculate_accuracy, localtime_in_sec
 
-
-print("start time: ",asctime())
-
+#print(localtime())
+now = localtime_in_sec(localtime)
+print("Starting time:", now, "second")
 def bootstrapping(data, n_bootstrap):
 
     bootstrap_indices = np.random.randint(low=0, high=len(data), size=n_bootstrap)
@@ -42,17 +43,24 @@ def random_forest_predictions(data, forest):
 col_names = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
              'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data', 'label']
 
-dataframe = pd.read_excel("CICIDS2017.xlsx", names=col_names)
+dataframe = pd.read_excel("ddos_cicids2017.xlsx", names=col_names)
 
-forest = random_forest_algorithm(dataframe, n_trees=4, n_bootstrap=800, n_features=2, dt_max_depth=4)
-predictions = random_forest_predictions(dataframe, forest)
-accuracy = calculate_accuracy(predictions, dataframe.label)
+train_df, test_df = train_test_split(dataframe, train_size= 0.01)
+
+forest = random_forest_algorithm(train_df, n_trees=4, n_bootstrap=800, n_features=2, dt_max_depth=4)
+predictions = random_forest_predictions(train_df, forest)
+accuracy = calculate_accuracy(predictions, train_df.label)
 
 print(forest)
 print("==========")
 print(predictions)
 print("==========")
-print(accuracy)
 
-#print(dataframe.shape)
-print("end time: ",asctime())
+#print(localtime())
+later = localtime_in_sec(localtime)
+print("Ending time: ",later, "second")
+duration = int(later-now)
+print("duration", duration, "second")
+
+print("accuracy: ",accuracy)
+

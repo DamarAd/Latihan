@@ -1,6 +1,6 @@
 import pandas as pd
 import random
-
+from time import *
 
 # 1. Train-Test-Split
 def train_test_split(df, test_size):
@@ -39,3 +39,13 @@ def calculate_accuracy(predictions, labels):
     accuracy = predictions_correct.mean()
 
     return accuracy
+
+
+def localtime_in_sec(localtime):
+    time = localtime()
+    hour = time.tm_hour * 3600
+    minute = time.tm_min * 60
+    second = time.tm_sec
+    localtime_sec = hour + minute + second
+
+    return localtime_sec
