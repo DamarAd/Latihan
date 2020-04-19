@@ -40,6 +40,13 @@ def calculate_accuracy(predictions, labels):
 
     return accuracy
 
+def hitung_akurasi(predictions, labels):
+    predictions_correct = predictions == labels
+    predictions_false = predictions != labels
+    total = len(predictions)
+    hasil = predictions_correct/total
+    akurasi = hasil.mean()
+    return akurasi
 
 def localtime_in_sec(localtime):
     time = localtime()
