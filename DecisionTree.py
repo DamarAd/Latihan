@@ -214,11 +214,6 @@ def decision_tree_algorithm(df, counter=0, min_samples=0, max_depth=5, random_su
 
     return sub_tree
 
-"""tree = decision_tree_algorithm(dataframe, max_depth=4)
-print("=======")
-pprint(tree)
-"""
-
 # Make Prediciton
 # One example
 #example = dataframe.iloc[9]
@@ -254,19 +249,3 @@ def predict_example(example, tree):
 def decision_tree_predictions(df, tree):
     predictions = df.apply(predict_example, args=(tree,), axis=1)
     return predictions
-
-
-
-# Calculate accuracy
-def accuracy(df, tree):
-    df["classification"] = df.apply(predict_example, axis=1, args=(tree,))
-    df["classification_correct"] = df.classification == df.label
-
-    accuracy = df.classification_correct.mean()
-
-    return accuracy
-"""
-print(accuracy(dataframe, tree))
-print("========")
-print(dataframe)
-"""

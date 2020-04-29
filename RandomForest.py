@@ -6,6 +6,7 @@ import numpy as np
 import random
 
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler
 
 from DecisionTree import decision_tree_algorithm, decision_tree_predictions
 from helper_functions import localtime_in_sec
@@ -13,10 +14,11 @@ from helper_functions import localtime_in_sec
 # Option Display for Rows n Columns
 desired_width = 300
 pd.set_option('display.width', desired_width)
-pd.set_option('display.max_rows', 300)
 pd.set_option('display.max_columns', 100)
+#pd.set_option('display.max_rows', 300)
 
 
+# TODO Bootstrapping
 def bootstrapping(data, n_bootstrap):
 
     bootstrap_indices = np.random.randint(low=0, high=len(data), size=n_bootstrap)
@@ -24,6 +26,8 @@ def bootstrapping(data, n_bootstrap):
 
     return df_bootstrapped
 
+
+# TODO Random Forest Model
 def random_forest_algorithm(data, n_trees, n_bootstrap, n_features, dt_max_depth):
     forest = []
     for i in range(n_trees):
@@ -33,6 +37,8 @@ def random_forest_algorithm(data, n_trees, n_bootstrap, n_features, dt_max_depth
 
     return forest
 
+
+# TODO Random Forest Prediction
 def random_forest_predictions(data, forest):
     df_predictions = {}
     for i in range(len(forest)):
@@ -45,40 +51,98 @@ def random_forest_predictions(data, forest):
 
     return random_forest_predictions
 
+
+# TODO Secondary data init
 col_names = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
              'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data', 'label']
 
 dataframe = pd.read_excel("ddos_cicids2017.xlsx", names=col_names)
+
+
+#TODO Rescaling for Secondary Data
+scaled_sec_features = dataframe.copy()
+
+column_names_sec = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
+             'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data']
+
+sec_features = scaled_sec_features[column_names_sec]
+scaler = MinMaxScaler().fit(sec_features.values)
+sec_features = scaler.transform(sec_features.values)
+
+scaled_sec_features[column_names_sec] = sec_features
+#print(scaled_features)
+
+
+# TODO Splitting secondary data
+train_sekunder, test_sekunder = train_test_split(scaled_sec_features, train_size= 0.25)
+
+
+# TODO Primary init
 primary = pd.read_excel("data_primer.xlsx", names=col_names)
 
-secondary, test_df = train_test_split(dataframe, train_size= 0.01)
 
-forest = random_forest_algorithm(secondary, n_trees=50, n_bootstrap=800, n_features=6, dt_max_depth=10)
+# TODO Rescaling for Primary Data
+scaled_prim_features = primary.copy()
 
+column_names_prim = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
+             'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data']
+
+prim_features = scaled_prim_features[column_names_prim]
+scaler = MinMaxScaler().fit(prim_features.values)
+prim_features = scaler.transform(prim_features.values)
+
+scaled_prim_features[column_names_prim] = prim_features
+
+
+# TODO Splitting primary
+train_primer, test_primer = train_test_split(scaled_prim_features, train_size= 0.5)
+
+
+# TODO Construct forest model
+forest = random_forest_algorithm(train_primer, n_trees=50, n_bootstrap=800, n_features=6, dt_max_depth=10)
+
+print("==========")
 pprint(forest)
 print("==========")
 
+
+#TODO Starting time
 now = localtime_in_sec(localtime)
 print("Starting time:", now, "second")
-predictions = random_forest_predictions(secondary, forest)
+predictions = random_forest_predictions(test_primer, forest)
 
+
+# TODO Determine Predictions
 print(predictions)
-print(secondary.label)
 print("==========")
+print(test_primer.label)
 
+
+# TODO Ending time and Print Duration
+# Ending time
 later = localtime_in_sec(localtime)
 print("Ending time: ",later, "second")
+# Print Duration
 duration = int(later-now)
 
-print("==========")
-from sklearn.metrics import confusion_matrix, classification_report
+# Determine total of benign and Ddos in each predictions
+unique_clases, counts_unique_clasess = np.unique(predictions, return_counts=True)
 
-tn, fp, fn, tp = confusion_matrix(secondary.label, predictions).ravel()
+
+# TODO Confusion matrix
+# Determine TN, FP, FN, TP
+print("==========")
+from sklearn.metrics import confusion_matrix
+
+tn, fp, fn, tp = confusion_matrix(test_primer.label, predictions).ravel()
 print(" True Negative: ",tn,"\n",
       "False Positive: ",fp,"\n",
       "False Negative: ",fn,"\n",
       "True Positive: ",tp)
 
+
+# TODO Calculate Testing System
+# accuracy, precisioin, recall, f-measure
 if (tp + tn + fp + fn) != 0:
     accuracy = ((tp + tn) / (tp + tn + fp + fn)) * 100
 else:
@@ -100,20 +164,22 @@ else:
     f_measure = 0
 
 
+# Print Output
+print(unique_clases)
+print(counts_unique_clasess)
 print("duration", duration, "second")
 print("akurasi: ", accuracy)
 print("presisi: ", precision)
 print("recall: ",recall)
 print("f-measure: ",f_measure)
 
+
+
 """
-n_bootstrap = 400
-bootstrapped = bootstrapping(primary, n_bootstrap)
+n_bootstrap = 800
+bootstrapped = bootstrapping(scaled_features, n_bootstrap)
 print(bootstrapped)
 """
 
-#print(classification_report(primary.label, predictions))
-
-#print(confusion_matrix(train_df.label, predictions))
 
 

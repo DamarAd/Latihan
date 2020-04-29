@@ -1,22 +1,5 @@
-import pandas as pd
-import random
-from time import *
 
-# 1. Train-Test-Split
-def train_test_split(df, test_size):
-    if isinstance(test_size, float):
-        test_size = round(test_size * len(df))
-
-    indices = df.index.tolist()
-    test_indices = random.sample(population=indices, k=test_size)
-
-    test_df = df.loc[test_indices]
-    train_df = df.drop(test_indices)
-
-    return train_df, test_df
-
-
-# 2. Distinguish categorical and continuous features
+# Distinguish categorical and continuous features
 def determine_type_of_feature(df):
     feature_types = []
     n_unique_values_treshold = 15
@@ -32,22 +15,7 @@ def determine_type_of_feature(df):
 
     return feature_types
 
-
-# 3. Accuracy
-def calculate_accuracy(predictions, labels):
-    predictions_correct = predictions == labels
-    accuracy = predictions_correct.mean()
-
-    return accuracy
-
-def hitung_akurasi(predictions, labels):
-    predictions_correct = predictions == labels
-    predictions_false = predictions != labels
-    total = len(predictions)
-    hasil = predictions_correct/total
-    akurasi = hasil.mean()
-    return akurasi
-
+# Determine local time
 def localtime_in_sec(localtime):
     time = localtime()
     hour = time.tm_hour * 3600
