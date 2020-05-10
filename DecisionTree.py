@@ -1,10 +1,6 @@
-from pprint import pprint
-from time import asctime
-
 import numpy as np
 import pandas as pd
 import random
-from sklearn.model_selection import train_test_split
 
 from helper_functions import determine_type_of_feature
 
@@ -52,7 +48,6 @@ from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 fit_X = scaler.fit(dataframe.values[:, :-1])
 Rescaled_dataX = scaler.transform(dataframe.values[:, :-1])
-
 
 
 # TODO Build Tree

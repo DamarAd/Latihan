@@ -3,7 +3,6 @@ from pprint import pprint
 
 import pandas as pd
 import numpy as np
-import random
 
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
@@ -53,8 +52,8 @@ def random_forest_predictions(data, forest):
 
 
 # TODO Secondary data init
-col_names = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
-             'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data', 'label']
+col_names = ['TotLenFwdPckt', 'FwdPcktLenMax', 'FwdPcktLenMean', 'AvgFwdSgmnSize',
+             'SubFlFwdByts', 'InitWinBytsFwd', 'ActvData', 'Label']
 
 dataframe = pd.read_excel("ddos_cicids2017.xlsx", names=col_names)
 
@@ -62,8 +61,8 @@ dataframe = pd.read_excel("ddos_cicids2017.xlsx", names=col_names)
 #TODO Rescaling for Secondary Data
 scaled_sec_features = dataframe.copy()
 
-column_names_sec = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
-             'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data']
+column_names_sec = ['TotLenFwdPckt', 'FwdPcktLenMax', 'FwdPcktLenMean', 'AvgFwdSgmnSize',
+             'SubFlFwdByts', 'InitWinBytsFwd', 'ActvData']
 
 sec_features = scaled_sec_features[column_names_sec]
 scaler = MinMaxScaler().fit(sec_features.values)
@@ -84,8 +83,8 @@ primary = pd.read_excel("data_primer.xlsx", names=col_names)
 # TODO Rescaling for Primary Data
 scaled_prim_features = primary.copy()
 
-column_names_prim = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
-             'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data']
+column_names_prim = ['TotLenFwdPckt', 'FwdPcktLenMax', 'FwdPcktLenMean', 'AvgFwdSgmnSize',
+             'SubFlFwdByts', 'InitWinBytsFwd', 'ActvData']
 
 prim_features = scaled_prim_features[column_names_prim]
 scaler = MinMaxScaler().fit(prim_features.values)
@@ -97,30 +96,37 @@ scaled_prim_features[column_names_prim] = prim_features
 # TODO Splitting primary
 train_primer, test_primer = train_test_split(scaled_prim_features, train_size= 0.5)
 
+print("DATA TRAINING \n",train_sekunder)
+print("==========")
+print("DATA TESTING \n",test_sekunder)
+print("==========")
+
 
 # TODO Construct forest model
-forest = random_forest_algorithm(train_primer, n_trees=50, n_bootstrap=800, n_features=6, dt_max_depth=10)
+forest = random_forest_algorithm(train_sekunder, n_trees=50, n_bootstrap=800, n_features=6, dt_max_depth=10)
 
+"""
 print("==========")
 pprint(forest)
-print("==========")
-
+"""
 
 #TODO Starting time
 now = localtime_in_sec(localtime)
 print("Starting time:", now, "second")
-predictions = random_forest_predictions(test_primer, forest)
+print("==========")
+predictions = random_forest_predictions(test_sekunder, forest)
 
 
 # TODO Determine Predictions
-print(predictions)
+print("DATA PREDIKSI \n",predictions)
 print("==========")
-print(test_primer.label)
+print("DATA AKTUAL \n",test_sekunder.Label)
 
 
 # TODO Ending time and Print Duration
 # Ending time
 later = localtime_in_sec(localtime)
+print("==========")
 print("Ending time: ",later, "second")
 # Print Duration
 duration = int(later-now)
@@ -134,11 +140,14 @@ unique_clases, counts_unique_clasess = np.unique(predictions, return_counts=True
 print("==========")
 from sklearn.metrics import confusion_matrix
 
-tn, fp, fn, tp = confusion_matrix(test_primer.label, predictions).ravel()
+tn, fp, fn, tp = confusion_matrix(test_sekunder.Label, predictions).ravel()
+print("Berikut adalah confusion matrix : \n",confusion_matrix(test_sekunder.Label, predictions))
+print("==========")
 print(" True Negative: ",tn,"\n",
       "False Positive: ",fp,"\n",
       "False Negative: ",fn,"\n",
       "True Positive: ",tp)
+print("==========")
 
 
 # TODO Calculate Testing System
@@ -167,6 +176,7 @@ else:
 # Print Output
 print(unique_clases)
 print(counts_unique_clasess)
+print("==========")
 print("duration", duration, "second")
 print("akurasi: ", accuracy)
 print("presisi: ", precision)
@@ -180,6 +190,5 @@ n_bootstrap = 800
 bootstrapped = bootstrapping(scaled_features, n_bootstrap)
 print(bootstrapped)
 """
-
 
 
