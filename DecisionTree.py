@@ -23,14 +23,14 @@ def display(arr):
 col_names = ['total_length_of_fwd_packets', 'total_length_of_bwd_packets',
              'fwd_packet_length_max', 'fwd_packet_length_min', 'fwd_packet_length_mean', 'label']
 
-dataframe = pd.read_excel("excel_latihan.xlsx", names=col_names)
+#dataframe = pd.read_excel("data_primer.xlsx", names=col_names)
 
-"""
+
 col_names = ['total_length_of_fwd_packets', 'fwd_packet_length_max', 'fwd_packet_length_mean', 'avg_fwd_segment_size',
              'sublfow_fwd_bytes', 'init_win_bytes_fwd', 'act_data', 'label']
 
 dataframe = pd.read_excel("ddos_cicids2017.xlsx", names=col_names)
-"""
+
 #train_df, test_df = train_test_split(dataframe, train_size= 0.0001)
 
 #print("Train Dataframe: ",dataframe.shape)
